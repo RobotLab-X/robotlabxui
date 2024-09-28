@@ -16,12 +16,14 @@ jobs:
       uses: actions/setup-node@v2
       with:
         node-version: '18'  # Use Node.js 18 for compatibility
+        registry-url: 'https://npm.pkg.github.com'
 
-    # Instead of writing ${NODE_AUTH_TOKEN}, use echo with direct access to env var
     - name: Set up .npmrc for GitHub Packages
       run: |
         echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" > ~/.npmrc
         echo "registry=https://npm.pkg.github.com/<your-username>" >> ~/.npmrc
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Ensure the token is passed correctly
 
     - name: Install dependencies with Yarn
       run: yarn install
@@ -32,9 +34,9 @@ jobs:
         npm version --no-git-tag-version 0.9.${{ github.run_number }}
 
     - name: Publish to GitHub Packages
+      run: yarn publish --non-interactive --access public
       env:
         NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Ensure the token is passed correctly
-      run: yarn publish --non-interactive --access public
 
     - name: Create GitHub Release
       uses: actions/create-release@v1
