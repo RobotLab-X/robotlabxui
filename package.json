@@ -147,6 +147,6 @@
     "strip-ansi": "6.0.1"
   },
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
+    "@supertick:registry": "https://npm.pkg.github.com"
   }
 }
