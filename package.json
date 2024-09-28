@@ -1,5 +1,5 @@
 {
-  "name": "robotlab-x",
+  "name": "@robotlab-x/robotlabxui",
   "version": "0.9.0",
   "description": "A cross platform desktop application for creating and running robots (UI side)",
   "author": "GroG",
@@ -145,5 +145,8 @@
   },
   "resolutions": {
     "strip-ansi": "6.0.1"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
   }
 }
