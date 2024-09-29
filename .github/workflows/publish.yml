@@ -1,52 +1,32 @@
-name: Publish to GitHub Packages and Create Release
+name: Node.js Package
 
 on:
-  push:
-    branches:
-      - main  # Only trigger on commits pushed to the main branch
+  release:
+    types: [created]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 16
+      - run: npm ci
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        registry-url: 'https://npm.pkg.github.com'
-        always-auth: true
-
-    - name: Set up .npmrc for GitHub Packages
-      run: |
-        echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" > ~/.npmrc
-
-    - name: Install dependencies
-      run: yarn install
-
-    - name: Update package version
-      run: |
-        echo "Updating version to 0.9.${{ github.run_number }}"
-        npm version --no-git-tag-version 0.9.${{ github.run_number }}
-
-    - name: Publish to GitHub Packages
-      run: npm publish --access public  # Using npm to publish the package
-      env:
-        NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Ensure GITHUB_TOKEN is used for authentication
-
-    - name: Create GitHub Release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: "0.9.${{ github.run_number }}"
-        release_name: "Release 0.9.${{ github.run_number }}"
-        body: "Release of version 0.9.${{ github.run_number }}."
-        draft: false
-        prerelease: false
+  publish-gpr:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 16
+          registry-url: "https://npm.pkg.github.com"
+      - run: npm ci
+      - run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
